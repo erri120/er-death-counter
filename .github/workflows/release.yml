@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version string for the Nexus Mods file version (e.g. 1.0.0)
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Package
+        shell: pwsh
+        run: |
+          mkdir staging
+          Copy-Item build/Release/death_counter.dll staging/
+          Copy-Item death_counter.ini staging/
+          Copy-Item fonts/OFL.txt staging/
+          Compress-Archive -Path staging/* -DestinationPath er-death-counter-${{ inputs.version }}.zip
+
+      - name: Upload to Nexus Mods
+        uses: Nexus-Mods/upload-action@main
+        with:
+          api_key: ${{ secrets.NEXUSMODS_API_KEY }}
+          file_id: ${{ secrets.NEXUSMODS_FILE_ID }}
+          filename: er-death-counter-${{ inputs.version }}.zip
+          version: ${{ inputs.version }}
+          display_name: Death Counter ${{ inputs.version }}
+          category: main
