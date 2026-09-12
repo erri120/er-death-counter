@@ -29,9 +29,8 @@ jobs:
           Copy-Item build/Release/death_counter.dll staging/
           Copy-Item death_counter.ini staging/
           Copy-Item fonts/OFL.txt staging/
-          Compress-Archive -Path staging/* -DestinationPath death_counter.zip
 
       - uses: actions/upload-artifact@v7
         with:
           name: death_counter
-          path: death_counter.zip
+          path: staging
