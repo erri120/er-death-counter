@@ -10,11 +10,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(FATAL_ERROR
-        "death_counter must be cross-compiled with the x86_64-w64-mingw32 toolchain. "
-        "Use: cmake -DCMAKE_TOOLCHAIN_FILE=cmake/x86_64-w64-mingw32.cmake")
+        "death_counter must target Windows. "
+        "Use: cmake -DCMAKE_TOOLCHAIN_FILE=cmake/x86_64-w64-mingw32.cmake (cross-compile) "
+        "or a native MSVC generator.")
 endif()
 
-find_library(KERNEL32_LIB kernel32)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 include(FetchContent)
 
@@ -69,18 +70,17 @@ target_compile_definitions(death_counter PRIVATE
     UNICODE
     _UNICODE)
 
+set(MSVC_OR_CLANG_CL $<OR:$<CXX_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:Clang>>)
+
 target_compile_options(death_counter PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
-    -Wno-pedantic-missing-modules-cond)
+    $<$<NOT:${MSVC_OR_CLANG_CL}>:-Wall;-Wextra;-Wpedantic;-Werror;-Wno-pedantic-missing-modules-cond>
+    $<${MSVC_OR_CLANG_CL}:/W4;/WX>)
 
 target_link_libraries(death_counter PRIVATE
     imgui
     minhook
     inih_impl
-    ${KERNEL32_LIB}
+    kernel32
     d3d12
     d3dcompiler
     dxgi
@@ -89,9 +89,7 @@ target_link_libraries(death_counter PRIVATE
     user32)
 
 target_link_options(death_counter PRIVATE
-    -static-libstdc++
-    -static-libgcc
-    -static)
+    $<$<NOT:${MSVC_OR_CLANG_CL}>:-static-libstdc++;-static-libgcc;-static>)
 
 set_target_properties(death_counter PROPERTIES
     OUTPUT_NAME "death_counter"

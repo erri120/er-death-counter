@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  mingw:
+    name: MinGW (x86_64, Linux cross-compile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MinGW toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-mingw-w64-x86-64
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/x86_64-w64-mingw32.cmake
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Package
+        run: |
+          mkdir staging
+          cp build/death_counter.dll staging/
+          cp death_counter.ini staging/
+          cp fonts/OFL.txt staging/
+          cd staging
+          zip ../death_counter-0.1.0-mingw-x64.zip ./*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: death_counter-0.1.0-mingw-x64
+          path: death_counter-0.1.0-mingw-x64.zip
+
+  msvc:
+    name: MSVC (x64, windows-latest)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Package
+        shell: pwsh
+        run: |
+          mkdir staging
+          Copy-Item build/Release/death_counter.dll staging/
+          Copy-Item death_counter.ini staging/
+          Copy-Item fonts/OFL.txt staging/
+          Compress-Archive -Path staging/* -DestinationPath death_counter-0.1.0-msvc-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: death_counter-0.1.0-msvc-x64
+          path: death_counter-0.1.0-msvc-x64.zip
