@@ -15,18 +15,8 @@
 #include "config.hpp"
 #include "logger.hpp"
 
-namespace {
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wc++26-extensions"
-constexpr unsigned char font_data[] = {
-#embed "../fonts/EBGaramond-Bold.ttf"
-};
-#pragma GCC diagnostic pop
-
-constexpr unsigned font_data_size = sizeof(font_data);
-
-}
+extern const unsigned char font_data[];
+extern const unsigned font_data_size;
 
 namespace {
 

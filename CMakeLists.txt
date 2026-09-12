@@ -53,6 +53,20 @@ target_include_directories(imgui PUBLIC
     ${imgui_SOURCE_DIR}
     ${imgui_SOURCE_DIR}/backends)
 
+set(FONT_EMBED_SRC "${CMAKE_BINARY_DIR}/font_data.cpp")
+add_custom_command(
+    OUTPUT "${FONT_EMBED_SRC}"
+    COMMAND ${CMAKE_COMMAND}
+        -DINPUT=${CMAKE_SOURCE_DIR}/fonts/EBGaramond-Bold.ttf
+        -DOUTPUT=${FONT_EMBED_SRC}
+        -DNAME=font_data
+        -P ${CMAKE_SOURCE_DIR}/cmake/embed_file.cmake
+    DEPENDS ${CMAKE_SOURCE_DIR}/fonts/EBGaramond-Bold.ttf
+            ${CMAKE_SOURCE_DIR}/cmake/embed_file.cmake
+    COMMENT "Embedding font data")
+
+add_library(font_data STATIC "${FONT_EMBED_SRC}")
+
 add_library(death_counter SHARED
     src/dllmain.cpp
     src/renderer.cpp
@@ -80,6 +94,7 @@ target_link_libraries(death_counter PRIVATE
     imgui
     minhook
     inih_impl
+    font_data
     kernel32
     d3d12
     d3dcompiler
