@@ -372,14 +372,14 @@ void APIENTRY hook_execute_command_lists(ID3D12CommandQueue* queue,
     o_execute_command_lists(queue, num_command_lists, command_lists);
 }
 
-HRESULT APIENTRY hook_resize_buffers(IDXGISwapChain* swap_chain, UINT buffer_count,
+HRESULT APIENTRY hook_resize_buffers(IDXGISwapChain* swap_chain, UINT new_buffer_count,
                                      UINT width, UINT height, DXGI_FORMAT new_format,
                                      UINT flags) {
     if (imgui_ready) {
         logger::log("[death-counter] swapchain resized, resetting render state");
         reset_render_state();
     }
-    return o_resize_buffers(swap_chain, buffer_count, width, height, new_format, flags);
+    return o_resize_buffers(swap_chain, new_buffer_count, width, height, new_format, flags);
 }
 
 bool create_hook(std::size_t index, void* detour, void** original) {
