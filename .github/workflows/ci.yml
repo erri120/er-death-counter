@@ -11,8 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  msvc:
-    name: MSVC (x64, windows-latest)
+  build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
@@ -30,9 +29,9 @@ jobs:
           Copy-Item build/Release/death_counter.dll staging/
           Copy-Item death_counter.ini staging/
           Copy-Item fonts/OFL.txt staging/
-          Compress-Archive -Path staging/* -DestinationPath death_counter-0.1.0-msvc-x64.zip
+          Compress-Archive -Path staging/* -DestinationPath death_counter.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: death_counter-0.1.0-msvc-x64
-          path: death_counter-0.1.0-msvc-x64.zip
+          name: death_counter
+          path: death_counter.zip
