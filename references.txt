@@ -1,4 +1,0 @@
-- https://github.com/vswarte/fromsoftware-rs
-- https://github.com/ThomasJClark/elden-ring-transmog
-- https://github.com/Mordrog/EldenRing-PostureBarMod
-- https://github.com/ImAxel0/Elden-Menu
